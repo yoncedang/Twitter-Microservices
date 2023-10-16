@@ -1,0 +1,3269 @@
+openapi: 3.0.3
+info:
+  title: Twitter API - Microserivces
+
+  description: |-
+    This is Swagger API DOCUMENTATION for the Twitter Microserivces API.
+    - [Facebook](https://www.facebook.com/YonceDang)
+    - [Github](https://github.com/yoncedang)
+    - Email: huydang.dev@gmail.com
+    - Phone: 0931.827.837
+
+    - ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    - Admin for test: olgayrova1792@gmail.com - Abc@123456
+  contact:
+    email: huydang.dev@gmail.com
+  version: 1.0.11
+
+servers:
+  - url: http://localhost:8888/api
+tags:
+  - name: Auth
+    description: Methods, Registration, authentication, Login ....
+
+  - name: Tweet
+    description: Methods, create Tweet, Retweet ...
+
+  - name: Elasticsearch
+    description: Methods, Search content of Tweet, Hashtag, Username ...
+
+  - name: Follow
+    description: Methods, follow User, unfollow User ...
+
+  - name: Like-Comment
+    description: Methods, Like Tweet, Comment Tweet ...
+
+paths:
+  /auth/signup:
+    post:
+      tags:
+        - Auth
+      summary: Register new account
+      description: Register new account
+      operationId: signup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: email@email.com
+                password:
+                  type: string
+                  example: Abc@123456
+                name:
+                  type: string
+                  example: Yonce Dang
+                date_of_birth:
+                  type: string
+                  format: IOS8601
+                  example: 1992-08-23
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Please check your email: email@email.com"
+        "422":
+          description: "Unprocessable Entity"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Email already exists"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Email must be a valid email"
+
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal Server Error"
+
+  /auth/verify-email:
+    get:
+      tags:
+        - Auth
+      summary: Verify Email for signup
+      description: Verify Email for signup when register new account and comfirm email
+      operationId: VerifyEmail
+      parameters:
+        - name: verification
+          in: query
+          description: verification token email
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Verification success"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Token is required"
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unauthorized"
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Email not found"
+        "422":
+          description: "Unprocessable Entity"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Account already verified"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal Server Error"
+
+  /auth/verify-otp:
+    post:
+      tags:
+        - Auth
+      summary: Verify OTP for signup
+      description: Verify OTP for signup when register new account and comfirm email
+      operationId: VerifyOTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                otp:
+                  type: string
+                  example: 123456
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Verification success"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "OTP is required"
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "OTP not found"
+        "422":
+          description: "Unprocessable Entity"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Account already verified"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal Server Error"
+
+  /auth/request-verification:
+    get:
+      tags:
+        - Auth
+      summary: Request verification a new link for verification email
+      description: Request verification a new link to verification email
+      operationId: requestVerification
+      parameters:
+        - in: cookie
+          name: email
+          schema:
+            type: string
+            example: email
+          required: true
+          description: Key email Cookies for authentication
+
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Please check your email: example@gmail.com"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Email is required"
+
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Email not found"
+        "422":
+          description: "Unprocessable Entity"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Account already verified"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal Server Error"
+
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Login account
+      description: Login
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: email@email.com
+                password:
+                  type: string
+                  example: Abc@123456
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Login Success"
+                  data:
+                    type: object
+                    example:
+                      auth_id: 70
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Password not match"
+
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Email must be a valid email"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal Server Error"
+
+  /auth/request-accesstoken:
+    post:
+      tags:
+        - Auth
+      summary: Request new accessToken
+      description: Request access token - auth_id provided when login, use that id to get new accessToken if old accessToken expired
+      operationId: requestAccessToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                auth_id:
+                  type: integer
+                  example: 70
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Access Token Refreshed"
+
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unauthorized"
+
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal Server Error"
+
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Auth_id is required"
+
+  /auth/forgot-password:
+    post:
+      tags:
+        - Auth
+      summary: Forgot password
+      description: Forgot password
+      operationId: forgotPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: example@gmail.com
+
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Please check your email"
+
+        "422":
+          description: "Unprocessable Entity"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Email not found"
+
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Email must be a valid email"
+
+  /auth/reset-forgot-password:
+    post:
+      tags:
+        - Auth
+      summary: Reset password - Confirm forgot password
+      description: Reset password - Confirm forgot password
+      operationId: resetPassword
+      parameters:
+        - name: reset
+          in: query
+          description: token
+          required: true
+          schema:
+            type: string
+            example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRoX2lkIjo0MCwiaWF0IjoxNjk1NDM2NDQyLCJleHAiOjE2OTU0NDAwNDJ9.ER5yrqZltfaYLXFrgo13uQNdeSERvtTj_H797-EWMrE
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+                  example: Abc@123456
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Update password success"
+
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Password must be at least 6 characters"
+
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Account not found"
+
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unauthorized"
+
+  /auth/change-password:
+    post:
+      tags:
+        - Auth
+      summary: Change password
+      description: Change password when login
+      operationId: changePassword
+      parameters:
+        - in: cookie
+          name: accessToken
+          schema:
+            type: string
+          required: true
+          description: Access token for authentication COOKIE expired in a minute
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                oldPassword:
+                  type: string
+                  example: Abc@123456
+                newPassword:
+                  type: string
+                  example: Abc@123456789
+
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Update password success"
+
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Password must be at least 6 characters"
+
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Account not found"
+
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unauthorized"
+
+        "422":
+          description: "Unprocessable Entity"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Password not match"
+
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal Server Error"
+
+  /auth/change-email:
+    post:
+      tags:
+        - Auth
+      summary: Change Email
+      description: Change Email when login
+      operationId: ChangeEmail
+      parameters:
+        - in: cookie
+          name: accessToken
+          schema:
+            type: string
+          required: true
+          description: Access token for authentication COOKIE expired in a minute
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: example@gmail.com
+
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Update email success, please check your email"
+
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Email must be a valid email"
+
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Account not found"
+
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unauthorized"
+
+        "422":
+          description: "Unprocessable Entity"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "New email must be different from old email"
+
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal Server Error"
+
+  /auth/confirm-change-email:
+    get:
+      tags:
+        - Auth
+      summary: Confirm change Email
+      description: Confirm change Email
+      operationId: confirmchangeEmail
+      parameters:
+        - name: confirm
+          in: query
+          description: token
+          required: true
+          schema:
+            type: string
+
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Update email success"
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Email already verification"
+
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unauthorized"
+
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Token is required"
+
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal Server Error"
+
+  /auth/edit-profile:
+    put:
+      tags:
+        - Auth
+      summary: Edit profile
+      description: Edit profile, at least 1 field to update
+      operationId: editProfile
+      parameters:
+        - in: cookie
+          name: accessToken
+          schema:
+            type: string
+          required: true
+          description: Access token for authentication COOKIE expired in a minute
+
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Yonce Dang
+                date_of_birth:
+                  type: string
+                  example: 1992-08-23
+                username:
+                  type: string
+                  example: yoncedang
+                bio:
+                  type: string
+                  example: I'm a developer
+                location:
+                  type: string
+                  example: Ho Chi Minh City
+                website:
+                  type: string
+                  example: https://yoncedang.com
+
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Update profile success"
+
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No fields to update"
+
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Account not found"
+
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal Server Error"
+
+  /auth/suspend-account:
+    put:
+      tags:
+        - Auth
+      summary: Suspend account
+      description: Suspend account
+      operationId: SuspendedAccount
+      parameters:
+        - in: cookie
+          name: accessToken
+          schema:
+            type: string
+          required: true
+          description: Access token for authentication COOKIE expired in a minute
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                auth_id:
+                  type: integer
+                  example: 70
+
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Suspended success: finnianed35@gmail.com"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Invalid auth_id"
+
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Account not found"
+
+        "422":
+          description: "Unprocessable Entity"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Account is already suspended"
+
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unauthorized"
+
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal Server Error"
+
+  /auth/unsuspend-account:
+    put:
+      tags:
+        - Auth
+      summary: Unsuspend account
+      description: Unsuspend account
+      operationId: UnsuspendAccount
+      parameters:
+        - in: cookie
+          name: accessToken
+          schema:
+            type: string
+          required: true
+          description: Access token for authentication COOKIE expired in a minute
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                auth_id:
+                  type: integer
+                  example: 70
+
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unsuspended success: finnianed35@gmail.com"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Invalid auth_id"
+
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Account not found"
+
+        "422":
+          description: "Unprocessable Entity"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Account already unsuspended"
+
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unauthorized"
+
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal Server Error"
+
+  /auth/get-information:
+    get:
+      tags:
+        - Auth
+      summary: Get information
+      description: Get information by User
+      operationId: getInformation
+      parameters:
+        - in: cookie
+          name: accessToken
+          schema:
+            type: string
+          required: true
+          description: Access token for authentication COOKIE expired in a minute
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Get information success"
+                  data:
+                    type: object
+                    properties:
+                      auth_id:
+                        type: integer
+                        example: 70
+                      email:
+                        type: string
+                        example: example@gmail.com
+                      name:
+                        type: string
+                        example: Yonce Dang
+                      date_of_birth:
+                        type: string
+                        format: IOS8601
+                        example: 1992-08-23
+                      role:
+                        type: string
+                        example: user
+                      activity:
+                        type: string
+                        example: online
+                      isUpdated:
+                        type: boolean
+                        example: true
+                      createdAt:
+                        type: string
+                        format: IOS8601
+                        example: 2021-08-23T09:00:00.000Z
+                      updatedAt:
+                        type: string
+                        format: IOS8601
+                        example: 2021-08-23T09:00:00.000Z
+                      Profile:
+                        properties:
+                          bio:
+                            type: string
+                            example: I'm a developer
+                          location:
+                            type: string
+                            example: Ho Chi Minh City
+                          website:
+                            type: string
+                            example: https://yoncedang.com
+                          username:
+                            type: string
+                            example: yoncedang
+                          avatar:
+                            type: string
+                            example: https://twitter.sgp1.digitaloceanspaces.com/img.jpeg
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unauthorized"
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Account not found"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal Server Error"
+
+  /auth/all-user:
+    get:
+      tags:
+        - Auth
+      summary: Get all user
+      description: Get all user
+      operationId: getAllUser
+      parameters:
+        - in: cookie
+          name: accessToken
+          schema:
+            type: string
+          required: true
+          description: Access token for authentication COOKIE expired in a minute
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Get all user success"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        auth_id:
+                          type: integer
+                          example: 70
+                        email:
+                          type: string
+                          example: example@gmail.com
+                        name:
+                          type: string
+                          example: Yonce Dang
+                        date_of_birth:
+                          type: string
+                          format: IOS8601
+                          example: 1992-08-23
+                        role:
+                          type: string
+                          example: user
+                        activity:
+                          type: string
+                          example: online
+                        isUpdated:
+                          type: boolean
+                          example: true
+                        createdAt:
+                          type: string
+                          format: IOS8601
+                          example: 2021-08-23T09:00:00.000Z
+                        updatedAt:
+                          type: string
+                          format: IOS8601
+                          example: 2021-08-23T09:00:00.000Z
+                        Profile:
+                          type: object
+                          properties:
+                            bio:
+                              type: string
+                              example: I'm a developer
+                            location:
+                              type: string
+                              example: Ho Chi Minh City
+                            website:
+                              type: string
+                              example: https://yoncedang.com
+                            username:
+                              type: string
+                              example: yoncedang
+                            avatar:
+                              type: string
+                              example: https://twitter.sgp1.digitaloceanspaces.com/img.jpeg
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "accessToken is required"
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unauthorized"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal Server Error"
+
+  /auth/get-user:
+    get:
+      tags:
+        - Auth
+      summary: Get user by USERNAME
+      description: Get user by USERNAME
+      operationId: getUserByUsername
+      parameters:
+        - name: username
+          in: query
+          description: username
+          required: true
+          schema:
+            type: string
+            example: yoncedang
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Get information success"
+                  data:
+                    type: object
+                    properties:
+                      profile_id:
+                        type: integer
+                        example: 70
+                      auth_id:
+                        type: integer
+                        example: 70
+                      email:
+                        type: string
+                        example: example@gmail.com
+                      name:
+                        type: string
+                        example: Yonce Dang
+                      date_of_birth:
+                        type: string
+                        format: IOS8601
+                        example: 1992-08-23
+                      role:
+                        type: string
+                        example: user
+                      activity:
+                        type: string
+                        example: online
+                      isUpdated:
+                        type: boolean
+                        example: true
+                      createdAt:
+                        type: string
+                        format: IOS8601
+                        example: 2021-08-23T09:00:00.000Z
+                      updatedAt:
+                        type: string
+                        format: IOS8601
+                        example: 2021-08-23T09:00:00.000Z
+                      Profile:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            website:
+                              type: string
+                              example: https://yoncedang.com
+                            bio:
+                              type: string
+                              example: I'm a developer
+                            location:
+                              type: string
+                              example: Ho Chi Minh City
+                            username:
+                              type: string
+                              example: yoncedang
+                            avatar:
+                              type: string
+                              example: https://twitter.sgp1.digitaloceanspaces.com/img.jpeg
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Username is required"
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Account not found"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal Server Error"
+
+  /auth/get-user-by-id:
+    get:
+      tags:
+        - Auth
+      summary: Get infromation by ID
+      description: Get infromation User by ID
+      operationId: getUserById
+      parameters:
+        - name: auth_id
+          in: query
+          description: auth_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Get information success"
+                  data:
+                    type: array
+                    items:
+                      type: object
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: auth_id is required
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Not match any result
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal Server Error
+
+  /auth/del-account:
+    delete:
+      tags:
+        - Auth
+      summary: Delete account
+      description: Admin delete user account
+      operationId: deleteAccount
+      parameters:
+        - in: cookie
+          name: accessToken
+          schema:
+            type: string
+          required: true
+          description: Access token for authentication COOKIE expired in a minute
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                auth_id:
+                  type: integer
+                  example: 70
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Delete success user: example@gmail.com"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Auth_id is required
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: You are not Admin
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User not found
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal Server Error
+
+  /auth/logout:
+    get:
+      tags:
+        - Auth
+      summary: Logout
+      description: Logout account
+      operationId: logout
+      parameters:
+        - in: cookie
+          name: accessToken
+          schema:
+            type: string
+          required: true
+          description: Access token for authentication COOKIE expired in a minute
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Logout success"
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: accessToken expired
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Account not found
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal Server Error
+
+  /auth/set-avatar:
+    put:
+      tags:
+        - Auth
+      summary: Set avatar
+      description: Set avatar
+      operationId: setAvatar
+      parameters:
+        - in: cookie
+          name: accessToken
+          schema:
+            type: string
+          required: true
+          description: Access token for authentication COOKIE expired in a minute
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: IMAGE file
+                  example: avatar.png
+
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Set avatar success"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: File to large
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: accessToken Expired
+
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Account not found
+
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal Server Error
+
+  /follow/follow-user:
+    post:
+      tags:
+        - Follow
+      summary: Follow user
+      description: Follow another user
+      operationId: followUser
+      parameters:
+        - in: cookie
+          name: accessToken
+          schema:
+            type: string
+          required: true
+          description: Access token for authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                follow_user:
+                  type: integer
+                  example: 70
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Follow success"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: validate error
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example:
+                      - "accessToken Expired"
+                      - "You can't follow yourself"
+
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example:
+                      - "Account not found"
+                      - "User not found to follow"
+
+        "422":
+          description: "Unprocessable Entity"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example:
+                      - "You are already following this user"
+                      - "Follow user is suspended"
+
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal Server Error
+
+  /follow/unfollow-user:
+    post:
+      tags:
+        - Follow
+      summary: Unfollow user
+      description: Unfollow user that you followed
+      operationId: unfollowUser
+      parameters:
+        - in: cookie
+          name: accessToken
+          schema:
+            type: string
+          required: true
+          description: Access token for authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                unfollow_user:
+                  type: integer
+                  example: 70
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unfollow success"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: validate error
+
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example:
+                      - "accessToken Expired"
+                      - "You can't unfollow yourself"
+
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example:
+                      - "Account not found"
+                      - "User not found to unfollow"
+                      - "You are not following this user"
+
+        "422":
+          description: "Unprocessable Entity"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: user is suspended
+
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal Server Error
+
+  /follow/follower:
+    get:
+      tags:
+        - Follow
+      summary: Get all follower by user id
+      description: Get all follower of user
+      operationId: getAllFollowerByUserId
+      parameters:
+        - name: user
+          in: query
+          description: user id
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Get all follower success
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        follower_id:
+                          type: integer
+                          example: 50
+
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User ID is required"
+
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: array
+                    example: "This user don't have any follower"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal Server Error
+
+  /follow/following:
+    get:
+      tags:
+        - Follow
+      summary: Get all Following by user id
+      description: Get all Following of user
+      operationId: getAllFollowingByUserId
+      parameters:
+        - name: user
+          in: query
+          description: user id
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        auth_id:
+                          type: integer
+                          example: 68
+                        following_id:
+                          type: integer
+                          example: 50
+
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User ID is required"
+
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: array
+                    example: "This user don't following anyone"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal Server Error
+
+  /interact/like:
+    post:
+      tags:
+        - Like-Comment
+      summary: Like tweet
+      description: Like tweet
+      operationId: likeTweet
+      parameters:
+        - name: accessToken
+          in: cookie
+          schema:
+            type: string
+          required: true
+          description: Access token for authentication
+        - name: tweet
+          in: query
+          schema:
+            type: integer
+          required: true
+          description: Tweet id
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Like tweet success"
+
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "You are not user"
+
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Tweet not found"
+
+        "422":
+          description: "Unprocessable Entity"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "You already liked this tweet"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Tweet ID is required"
+
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal Server Error
+
+  /interact/unlike:
+    delete:
+      tags:
+        - Like-Comment
+      summary: Unlike tweet
+      description: Unlike tweet
+      operationId: unlikeTweet
+      parameters:
+        - name: accessToken
+          in: cookie
+          schema:
+            type: string
+          required: true
+          description: Access token for authentication
+        - name: tweet
+          in: query
+          schema:
+            type: integer
+          required: true
+          description: Tweet id
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unlike tweet success"
+
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "You are not user"
+
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Tweet not found"
+
+        "422":
+          description: "Unprocessable Entity"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "You do not like this Tweet"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Tweet ID is required"
+
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal Server Error
+
+  /interact/comment:
+    post:
+      tags:
+        - Like-Comment
+      summary: Comment tweet
+      description: Comment tweet
+      operationId: commentTweet
+      parameters:
+        - name: accessToken
+          in: cookie
+          schema:
+            type: string
+          required: true
+          description: Access token for authentication
+        - name: tweet
+          in: query
+          schema:
+            type: integer
+          required: true
+          description: Tweet id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  example: "Hello world"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Comment tweet success"
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      comment_id:
+                        type: integer
+                        example: 1
+                      auth_id:
+                        type: integer
+                        example: 70
+                      tweet_id:
+                        type: integer
+                        example: 1
+                      content:
+                        type: string
+                        example: "Hello world"
+                      createdat:
+                        type: string
+                        format: IOS8601
+                        example: 2021-08-23T09:00:00.000Z
+                      updatedat:
+                        type: string
+                        format: IOS8601
+                        example: 2021-08-23T09:00:00.000Z
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Tweet ID is required"
+                    type: string
+
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "You are not user"
+                    type: string
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Internal Server Error
+
+  /interact/del-comment:
+    delete:
+      tags:
+        - Like-Comment
+      summary: Delete comment
+      description: Delete comment by comment_ID
+      operationId: deleteComment
+      parameters:
+        - name: accessToken
+          in: cookie
+          schema:
+            type: string
+          required: true
+          description: Access token for authentication
+        - name: comment
+          in: query
+          schema:
+            type: integer
+          required: true
+          description: Comment id
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Delete comment success"
+                    type: string
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Comment ID is required"
+                    type: string
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Comment not found"
+                    type: string
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "You are not user"
+                    type: string
+
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: Internal Server Error
+                    type: string
+
+  /interact/get-comment:
+    get:
+      tags:
+        - Like-Comment
+      summary: Get comment by comment_ID
+      description: Get comment by comment_ID
+      operationId: getComment
+      parameters:
+        - name: comment
+          in: query
+          schema:
+            type: integer
+          required: true
+          description: Comment id
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Get comment success"
+                    type: string
+                  data:
+                    properties:
+                      comment_id:
+                        type: integer
+                        example: 1
+                      auth_id:
+                        type: integer
+                        example: 70
+                      tweet_id:
+                        type: integer
+                        example: 1
+                      content:
+                        type: string
+                        example: "Hello world"
+                      createdat:
+                        type: string
+                        format: IOS8601
+                        example: 2021-08-23T09:00:00.000Z
+                      updatedat:
+                        type: string
+                        format: IOS8601
+                        example: 2021-08-23T09:00:00.000Z
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Comment not found"
+                    type: string
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Comment ID is required"
+                    type: string
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: Internal Server Error
+                    type: string
+
+  /interact/edit-comment:
+    put:
+      tags:
+        - Like-Comment
+      summary: Edit comment
+      description: Edit comment by comment_ID
+      operationId: editComment
+      parameters:
+        - name: accessToken
+          in: cookie
+          schema:
+            type: string
+          required: true
+          description: Access token for authentication
+        - name: comment
+          in: query
+          schema:
+            type: integer
+          required: true
+          description: Comment id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  example: "Hello world"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Edit comment success"
+                    type: string
+                  data:
+                    properties:
+                      comment_id:
+                        type: integer
+                        example: 1
+                      auth_id:
+                        type: integer
+                        example: 70
+                      tweet_id:
+                        type: integer
+                        example: 1
+                      content:
+                        type: string
+                        example: "Hello world"
+                      createdat:
+                        type: string
+                        format: IOS8601
+                        example: 2021-08-23T09:00:00.000Z
+                      updatedat:
+                        type: string
+                        format: IOS8601
+                        example: 2021-08-23T09:00:00.000Z
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Comment not found"
+                    type: string
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "You are not user"
+                    type: string
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Somethings wrong to edit this comment"
+                    type: string
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: Internal Server Error
+                    type: string
+
+  /interact/all-comment-tweet:
+    get:
+      tags:
+        - Like-Comment
+      summary: Get all comment by tweet_ID
+      description: Get all comment by tweet_ID
+      operationId: getAllCommentByTweetId
+      parameters:
+        - name: tweet
+          in: query
+          schema:
+            type: integer
+          required: true
+          description: Tweet id
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Get All Comment Success"
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      properties:
+                        comment_id:
+                          type: integer
+                          example: 1
+                        auth_id:
+                          type: integer
+                          example: 70
+                        tweet_id:
+                          type: integer
+                          example: 1
+                        content:
+                          type: string
+                          example: "Hello world"
+                        createdat:
+                          type: string
+                          format: IOS8601
+                          example: 2021-08-23T09:00:00.000Z
+                        updatedat:
+                          type: string
+                          format: IOS8601
+                          example: 2021-08-23T09:00:00.000Z
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Comment not found"
+                    type: string
+
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: Internal Server Error
+                    type: string
+
+  /tweet/create:
+    post:
+      tags:
+        - Tweet
+      summary: Create tweet
+      description: Create tweet
+      operationId: createTweet
+      parameters:
+        - name: accessToken
+          in: cookie
+          schema:
+            type: string
+          required: true
+          description: Access token for authentication
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  example: "Hello world"
+                file:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                    description: IMAGE file
+                    example: avatar.png
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Create tweet success"
+                    type: string
+                  data:
+                    type: object
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Only allowed to upload 4 photos or 1 video"
+                    type: string
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "You are not user"
+                    type: string
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: Internal Server Error
+                    type: string
+
+  /tweet/delete:
+    delete:
+      tags:
+        - Tweet
+      summary: Delete tweet
+      description: Delete tweet by tweet_ID
+      operationId: deleteTweet
+      parameters:
+        - name: accessToken
+          in: cookie
+          schema:
+            type: string
+          required: true
+          description: Access token for authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tweet_id:
+                  type: integer
+                  example: 1
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Delete tweet success"
+                    type: string
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "You are not user"
+                    type: string
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Tweet not found"
+                    type: string
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  example:
+                    example: Internal Server Error
+                    type: string
+
+  /tweet/edit:
+    put:
+      tags:
+        - Tweet
+      summary: Edit tweet
+      description: Edit tweet by tweet_ID
+      operationId: editTweet
+      parameters:
+        - name: accessToken
+          in: cookie
+          schema:
+            type: string
+          required: true
+          description: Access token for authentication
+        - name: tweet
+          in: query
+          schema:
+            type: integer
+          required: true
+          description: Tweet id
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  example: "Hello world"
+                file:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                    description: IMAGE file
+                    example: avatar.png
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Edit tweet success"
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      example: object value
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Only allowed to upload 4 photos or 1 video"
+                    type: string
+
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "You are not user"
+                    type: string
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Tweet not found"
+                    type: string
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  example:
+                    example: Internal Server Error
+                    type: string
+
+  /tweet/retweet:
+    post:
+      tags:
+        - Tweet
+      summary: Retweet tweet
+      description: Retweet tweet by tweet_ID
+      operationId: retweetTweet
+      parameters:
+        - name: accessToken
+          in: cookie
+          schema:
+            type: string
+          required: true
+          description: Access token for authentication
+        - name: tweet
+          in: query
+          schema:
+            type: integer
+          required: true
+          description: Tweet id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  example: "Hello world"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Retweet tweet success"
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      example: object value
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Tweet not found"
+                    type: string
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Tweet ID is required"
+                    type: string
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "You are not user"
+                    type: string
+        "422":
+          description: "Unprocessable Entity"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "You already retweet this tweet"
+                    type: string
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: Internal Server Error
+                    type: string
+
+  /tweet/un-retweet:
+    put:
+      tags:
+        - Tweet
+      summary: Un-Retweet tweet
+      description: Un-Retweet tweet by tweet_ID
+      operationId: unRetweetTweet
+      parameters:
+        - name: accessToken
+          in: cookie
+          schema:
+            type: string
+          required: true
+          description: Access token for authentication
+
+        - name: tweet
+          in: query
+          schema:
+            type: integer
+          required: true
+          description: Tweet id
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Un-Retweet tweet success"
+                    type: string
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Retweet not found"
+                    type: string
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "You are not user"
+                    type: string
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Tweet ID is required"
+                    type: string
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  example:
+                    example: Internal Server Error
+                    type: string
+
+  /tweet/get-tweet:
+    get:
+      tags:
+        - Tweet
+      summary: Get tweet by tweet_ID
+      description: Get tweet by tweet_ID
+      operationId: getTweet
+      parameters:
+        - name: tweet
+          in: query
+          schema:
+            type: integer
+          required: true
+          description: Tweet id
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Tweet found"
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      example: object value
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Tweet ID is required"
+                    type: string
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Tweet not found"
+                    type: string
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  example:
+                    example: Internal Server Error
+                    type: string
+
+  /tweet/pagination-tweet:
+    get:
+      tags:
+        - Tweet
+      summary: Get tweet by pagination
+      description: Get tweet by pagination
+      operationId: getTweetByPagination
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+          required: true
+          description: Page number
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Get tweet success"
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      example: object value
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Tweet not found"
+                    type: string
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Page number is required"
+                    type: string
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  example:
+                    example: Internal Server Error
+                    type: string
+
+  /tweet/elasticsearch-tweet:
+    get:
+      tags:
+        - Tweet
+      summary: search content by elasticsearch
+      description: search CONTENT, HASHTAG by elasticsearch
+      operationId: searchContentByElasticsearch
+      parameters:
+        - name: content
+          in: query
+          schema:
+            type: string
+          required: true
+          description: "Content or hashtag"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Search tweet by content success"
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      example: object value
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Tweet not found"
+                    type: string
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Content is required"
+                    type: string
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  example:
+                    example: Internal Server Error
+                    type: string
+
+  /search/elasticsearch:
+    get:
+      tags:
+        - Elasticsearch
+      summary: search content by Elasticsearch
+      description: search Username, Hashtag, Content by Elasticsearch
+      operationId: searchContentByElasticsearch
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+          required: true
+          description: "Search: Username, Hashtag, Content ..."
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: Search success
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      example: object value
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: "Search is required"
+                    type: string
+        "404":
+          description: "Not Found"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: Search not found
+                    type: string
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    example: Internal Server Error
+                    type: string

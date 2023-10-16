@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model comments {
+  comment_id Int       @id @default(autoincrement())
+  auth_id    Int
+  tweet_id   Int
+  content    String
+  createdat  DateTime? @default(now()) @db.Timestamp(6)
+  updatedat  DateTime? @db.Timestamp(6)
+}
+
+model count {
+  count_id    Int  @id @default(autoincrement())
+  tweet_id    Int
+  sum_comment Int? @default(0)
+  sum_like    Int? @default(0)
+}
+
+model likes {
+  like_id   Int       @id @default(autoincrement())
+  auth_id   Int
+  tweet_id  Int
+  createdat DateTime? @default(now()) @db.Timestamp(6)
+  updatedat DateTime? @db.Timestamp(6)
+}

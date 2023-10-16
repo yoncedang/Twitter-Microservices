@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Hashtag {
+  hashtag_id Int     @id @default(autoincrement())
+  tweet_id   Int
+  tag        String? @db.VarChar(50)
+  Tweet      Tweet   @relation(fields: [tweet_id], references: [tweet_id], onDelete: NoAction, onUpdate: NoAction, map: "Hashtag_ibfk_1")
+
+  @@index([tweet_id], map: "tweet_id")
+}
+
+model Image {
+  image_id  Int       @id @default(autoincrement())
+  tweet_id  Int
+  url       String?   @db.VarChar(500)
+  createdAt DateTime? @default(now()) @db.Timestamp(0)
+  updatedAt DateTime? @default(now()) @db.Timestamp(0)
+  Tweet     Tweet     @relation(fields: [tweet_id], references: [tweet_id], onDelete: NoAction, onUpdate: NoAction, map: "Image_ibfk_1")
+
+  @@index([tweet_id], map: "tweet_id")
+}
+
+model Tweet {
+  tweet_id     Int            @id @default(autoincrement())
+  auth_id      Int
+  content      String?        @db.Text
+  createdAt    DateTime?      @default(now()) @db.Timestamp(0)
+  updatedAt    DateTime?      @default(now()) @db.Timestamp(0)
+  type         String         @default("Tweet") @db.VarChar(10)
+  retweet_id   Int?
+  CountRetweet CountRetweet[]
+  Hashtag      Hashtag[]
+  Image        Image[]
+  Retweet      Retweet[]
+  Video        Video[]
+}
+
+model Video {
+  video_id  Int       @id @default(autoincrement())
+  tweet_id  Int
+  url       String?   @db.VarChar(500)
+  createdAt DateTime? @default(now()) @db.Timestamp(0)
+  updatedAt DateTime? @default(now()) @db.Timestamp(0)
+  Tweet     Tweet     @relation(fields: [tweet_id], references: [tweet_id], onDelete: NoAction, onUpdate: NoAction, map: "Video_ibfk_1")
+
+  @@index([tweet_id], map: "tweet_id")
+}
+
+model Retweet {
+  retweet_id    Int       @id @default(autoincrement())
+  tweet_id      Int
+  auth_id       Int
+  total_retweet Int?      @default(1)
+  createdAt     DateTime? @default(now()) @db.Timestamp(0)
+  updatedAt     DateTime? @db.Timestamp(0)
+  Tweet         Tweet     @relation(fields: [tweet_id], references: [tweet_id], onDelete: NoAction, onUpdate: NoAction, map: "Retweet_ibfk_1")
+
+  @@index([tweet_id], map: "tweet_id")
+}
+
+model CountRetweet {
+  id       Int   @id @default(autoincrement())
+  tweet_id Int
+  count    Int?  @default(0)
+  Tweet    Tweet @relation(fields: [tweet_id], references: [tweet_id], onDelete: NoAction, onUpdate: NoAction, map: "CountRetweet_ibfk_1")
+
+  @@index([tweet_id], map: "tweet_id")
+}

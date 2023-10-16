@@ -1,0 +1,53 @@
+{
+  "name": "Node-custom",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "commonjs",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon dist/index.js",
+    "dev": "nodemon src/index.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.421.0",
+    "@elastic/elasticsearch": "7.10",
+    "@types/compression": "^1.7.3",
+    "@types/cookie-parser": "^1.4.4",
+    "@types/cors": "^2.8.13",
+    "@types/express": "^4.17.17",
+    "@types/ioredis": "^5.0.0",
+    "@types/ip": "^1.1.0",
+    "@types/jsonwebtoken": "^9.0.3",
+    "@types/multer": "^1.4.7",
+    "@types/node": "^20.5.6",
+    "@types/stream-buffers": "^3.0.5",
+    "@types/swagger-ui-express": "^4.1.4",
+    "@types/uuid": "^9.0.4",
+    "axios": "^1.5.0",
+    "compression": "^1.7.4",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-validator": "^7.0.1",
+    "firebase": "^10.4.0",
+    "fluent-ffmpeg": "^2.1.2",
+    "ioredis": "^5.3.2",
+    "ip": "^1.1.8",
+    "jsonwebtoken": "^9.0.2",
+    "kafkajs": "^2.2.4",
+    "multer": "^1.4.5-lts.1",
+    "nodemon": "^3.0.1",
+    "sharp": "^0.32.6",
+    "stream-buffers": "^3.0.2",
+    "swagger-ui-express": "^5.0.0",
+    "typescript": "^5.2.2",
+    "uuid": "^9.0.1",
+    "yaml": "^2.3.2",
+    "yamljs": "^0.3.0"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.1"
+  }
+}

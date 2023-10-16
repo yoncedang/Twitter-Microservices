@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Auth {
+  auth_id       Int       @id @default(autoincrement())
+  name          String    @db.VarChar(50)
+  email         String    @db.VarChar(100)
+  password      String    @db.VarChar(255)
+  date_of_birth DateTime  @db.Date
+  role          String?   @default("user") @db.VarChar(100)
+  activity      String?   @default("offline") @db.VarChar(255)
+  isUpdated     Boolean?  @default(false)
+  createdAt     DateTime? @default(now()) @db.Timestamp(0)
+  updatedAt     DateTime? @default(now()) @db.Timestamp(0)
+  Profile       Profile[]
+}
+
+model Profile {
+  profile_id Int       @id @default(autoincrement())
+  auth_id    Int?
+  bio        String?   @db.VarChar(255)
+  location   String?   @db.VarChar(255)
+  website    String?   @db.VarChar(255)
+  username   String?   @db.VarChar(255)
+  avatar     String?   @db.VarChar(999)
+  createdAt  DateTime? @default(now()) @db.Timestamp(0)
+  updatedAt  DateTime? @default(now()) @db.Timestamp(0)
+  Auth       Auth?     @relation(fields: [auth_id], references: [auth_id], onDelete: NoAction, onUpdate: NoAction, map: "Profile_ibfk_1")
+
+  @@index([auth_id], map: "auth_id")
+}
