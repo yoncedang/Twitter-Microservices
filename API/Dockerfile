@@ -14,7 +14,7 @@ RUN yarn install
 COPY . .
 
 # Khai báo cổng mà dịch vụ lắng nghe
-EXPOSE 8000
+EXPOSE 8888
 
 # Khởi chạy dịch vụ khi container được khởi động
 CMD ["yarn", "dev"]
