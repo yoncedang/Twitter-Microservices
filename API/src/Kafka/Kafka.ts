@@ -1,5 +1,6 @@
-import { Kafka, logLevel } from "kafkajs";
+import { Kafka } from "kafkajs";
 import ip from "ip";
+
 
 
 class KafkaClient {
@@ -7,17 +8,14 @@ class KafkaClient {
      public kafka: Kafka;
      private clientId: string = "API_SERVICE";
 
-     constructor () {
+     constructor() {
           this.kafka = new Kafka({
                clientId: this.clientId,
-               brokers: [`127.0.0.1:9092`],
+               brokers: [`${ip.address()}:9092`],
           })
      }
 }
 
-
 export {
      KafkaClient
 }
-
-
