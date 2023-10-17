@@ -1,6 +1,6 @@
 import { Kafka } from "kafkajs";
 import ip from "ip";
-
+import { IP_ADDRESS } from "../Config/Config";
 
 
 class KafkaClient {
@@ -11,7 +11,7 @@ class KafkaClient {
      constructor() {
           this.kafka = new Kafka({
                clientId: this.clientId,
-               brokers: [`${ip.address()}:9092`],
+               brokers: [`${IP_ADDRESS}:9092`],
           })
      }
 }

@@ -1,5 +1,5 @@
 # Sử dụng image có sẵn của Node.js
-FROM node:latest
+FROM node:latest AS Interact
 
 # Thiết lập thư mục làm việc
 WORKDIR /app
@@ -15,6 +15,11 @@ COPY . .
 
 # Khai báo cổng mà dịch vụ lắng nghe
 EXPOSE 3004
+
+# Thực hiện lệnh prisma db pull và prisma generate
+RUN yarn prisma db pull
+RUN yarn prisma generate
+
 
 # Khởi chạy dịch vụ khi container được khởi động
 CMD ["yarn", "dev"]

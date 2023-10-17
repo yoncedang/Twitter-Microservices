@@ -1,5 +1,5 @@
 # Sử dụng image có sẵn của Node.js
-FROM node:latest
+FROM node:latest AS Email
 
 # Thiết lập thư mục làm việc
 WORKDIR /app

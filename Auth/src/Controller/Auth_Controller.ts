@@ -12,6 +12,8 @@ import { DEL_user } from "../Interface/Interface";
 import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { DigitalOcean } from "../Config/Config";
 import { ElasticsearchService } from "../ElasticSearch/Elasticsearch";
+import { app } from "../Config/Firebase";
+import { getStorage, ref, deleteObject } from "firebase/storage";
 
 const s3Client = new S3Client({
      region: "sgp1",
@@ -22,7 +24,7 @@ const s3Client = new S3Client({
           secretAccessKey: DigitalOcean.secretAccessKey,
      },
 });
-
+const storage = getStorage(app);
 const elastic = new ElasticsearchService();
 const producer = new KafkaProducer();
 const redis = new RedisClass();
@@ -769,21 +771,29 @@ class Auth_Controller {
           const checkProfile = await prisma.profile.findFirst({ where: { auth_id } })
           if (!checkProfile) {
                // Nếu mà tìm không ra USER, thì ảnh vừa tạo sẽ được xóa đi ...
-               const oldImageKey = downloadURL.substring(downloadURL.lastIndexOf("/")).replace("/", "");
-               const deleteParams = {
-                    Bucket: "twitter",
-                    Key: "img/" + oldImageKey
-               };
-               await s3Client.send(new DeleteObjectCommand(deleteParams));
+               const getPath = downloadURL.substring(downloadURL.lastIndexOf("/") + 1).split("?")[0];
+               const realPath = decodeURIComponent(getPath)
+
+               const fileRef = ref(storage, realPath);
+               try {
+                    await deleteObject(fileRef);
+                    console.log(`File ${realPath} deleted successfully.`);
+               } catch (error: any) {
+                    console.error(`Error deleting file ${realPath}: ${error.message}`);
+               }
                return this.Response(RESPONSE_SET_AVATAR, "Account not found", 404)
           }
           if (checkProfile.avatar) {
-               const oldImageKey = checkProfile.avatar.substring(checkProfile.avatar.lastIndexOf("/")).replace("/", "");
-               const deleteParams = {
-                    Bucket: "twitter",
-                    Key: "img/" + oldImageKey
-               };
-               await s3Client.send(new DeleteObjectCommand(deleteParams));
+               const getPath = checkProfile.avatar.substring(checkProfile.avatar.lastIndexOf("/") + 1).split("?")[0];
+               const realPath = decodeURIComponent(getPath)
+               console.log("realPath: ", realPath);
+               const fileRef = ref(storage, realPath);
+               try {
+                    await deleteObject(fileRef);
+                    console.log(`File ${realPath} deleted successfully.`);
+               } catch (error: any) {
+                    console.error(`Error deleting file ${realPath}: ${error.message}`);
+               }
           } // Check avatar exists to delete old avatar -- Avatar mặc định sẽ không bị xóa trên cloud
           const update = await prisma.profile.update({
                where: { profile_id: checkProfile.profile_id },

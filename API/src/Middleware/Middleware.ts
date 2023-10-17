@@ -473,53 +473,64 @@ class Middleware {
                else {
                     const { accessToken } = req.cookies
                     const files = req.files as Express.Multer.File[];
-                    console.log(files)
+                    let image: number = 0;
+                    const storage = getStorage(app);
+                    if (!files || files.length === 0) {
+                         return response.General_Response(res, 400, "Image is not empty");
+                    }
+                    for (const file of files) {
+                         if (file.mimetype.startsWith("image/")) {
+                              if (file.size > 7 * 1024 * 1024) return response.General_Response(res, 400, "IMAGE maximum size is 7MB");
+                              image++;
+                         }
+                         else {
+                              return response.General_Response(res, 400, "File invalid: Just allow image file");
+                         }
+                    }
+                    if (image > 1) return response.General_Response(res, 400, "Only allowed to upload 1 photos");
+
 
                     await jwt.JWT_VERIFY(accessToken, async (err: any, value: any) => {
                          if (err) {
                               return response.General_Response(res, 401, err.message);
                          }
+                         await Promise.all(files.map(async (file) => {
+                              if (file.mimetype.startsWith("image/")) {
+                                   const save = "img/" + performance.now().toString().replace(".", "") + file.mimetype.substring(file.mimetype.lastIndexOf("/")).replace("/", ".");
+                                   const metadata = {
+                                        contentType: file.mimetype,
+                                   };
+                                   const imageSharp = await sharp(file.buffer)
+                                        .jpeg({ quality: 75 })
+                                        .toBuffer();
 
-                         if (files.length > 1) {
-                              return response.General_Response(res, 400, "Just one Image");
-                         }
-                         if (!files || files.length === 0) {
-                              return response.General_Response(res, 400, "Image is not empty");
-                         }
+                                   const storageRef = ref(storage, save);
+                                   const uploadTask = uploadBytesResumable(storageRef, imageSharp, metadata);
 
-                         for (const file of files) {
-                              if (file.size > 1024 * 1024 * 7) {
-                                   return response.General_Response(res, 400, "File too large - max size is 7Mb");
+
+                                   uploadTask.on('state_changed',
+                                        (snapshot) => {
+                                             const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                                             console.log('Upload is ' + progress + '% done');
+                                        },
+                                        (error: any) => {
+                                             console.log(error.message);
+                                        },
+                                        async () => {
+                                             const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                                             await redis.SET_REDIS(id, JSON.stringify({ value, downloadURL }))
+                                             await kafkaProducer.sendMessage(SET_AVATAR_FROM_API_TO_AUTH, id, { ...value, downloadURL })
+                                             console.log("SET AVATAR TOPIC: ", SET_AVATAR_FROM_API_TO_AUTH)
+
+                                             next()
+                                        }
+                                   );
+
                               }
-                              if (!file.mimetype.startsWith("image/")) {
-                                   return response.General_Response(res, 400, "File just allow image");
+                              else {
+                                   return response.General_Response(res, 400, "File invalid: Just allow image file");
                               }
-
-                              const { mimetype, buffer } = file
-                              const imageSharp = await sharp(buffer)
-                                   .jpeg({ quality: 75 })
-                                   .toBuffer()
-                              // Step 2: The s3Client function validates your request and directs it to your Space's specified endpoint using the AWS SDK.
-
-                              const params = {
-                                   Bucket: bucket, // The path to the directory you want to upload the object to, starting with your Space name.
-                                   Key: "img/" + performance.now().toString().replace(".", "") + mimetype.substring(mimetype.lastIndexOf("/")).replace("/", "."), // Object key, referenced whenever you want to access this file later.
-                                   Body: imageSharp, // The object's contents. This variable is an object, not a string.
-                                   ACL: "public-read-write", // Defines ACL permissions, such as private or public.
-                                   ContentType: mimetype
-                              };
-
-                              const dataSpaces = new PutObjectCommand(params);
-
-                              await s3Client.send(dataSpaces)
-
-                              const downloadURL = `https://twitter.sgp1.digitaloceanspaces.com/` + params.Key;
-                              console.log(downloadURL)
-                              await redis.SET_REDIS(id, JSON.stringify({ value, downloadURL }))
-                              await kafkaProducer.sendMessage(SET_AVATAR_FROM_API_TO_AUTH, id, { ...value, downloadURL })
-                              next()
-                              console.log("SET AVATAR TOPIC: ", SET_AVATAR_FROM_API_TO_AUTH)
-                         }
+                         }))
                     })
                }
           } catch (error: any) {

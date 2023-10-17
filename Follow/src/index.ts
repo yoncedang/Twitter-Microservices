@@ -6,7 +6,7 @@ import compression from 'compression';
 import { SequelizeClient } from './Model/Sequelize';
 import { RedisClass } from './Redis/Redis';
 import { KafkaConsumer } from './Kafka/Consumer';
-
+import { HOST_ADRESS } from './Config/Config';
 class App {
   public app: Application;
   public port: string | number;
@@ -51,7 +51,7 @@ class App {
 
   private listen(): void {
     this.app.listen(this.port, () => {
-      console.log(`Server is running at http://localhost:${this.port}`);
+      console.log(`Server is running at http://${HOST_ADRESS}:${this.port}`);
     });
   }
 }

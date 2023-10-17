@@ -13,14 +13,14 @@ const RedisClient: any = {
      host: process.env.REDIS_HOST,
      port: process.env.REDIS_PORT,
      password: process.env.REDIS_PASSWORD,
-
-
 }
+const IP_ADDRESS = process.env.IP_ADDRESS;
 
 
 export {
      API_PORT,
-     RedisClient
+     RedisClient,
+     IP_ADDRESS
 }
 
 

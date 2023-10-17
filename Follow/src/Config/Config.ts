@@ -23,15 +23,15 @@ const RedisClient: any = {
      host: process.env.REDIS_HOST,
      port: process.env.REDIS_PORT,
      password: process.env.REDIS_PASSWORD,
-
-
 }
 
+const HOST_ADRESS = process.env.HOST_ADRESS;
 
 export {
      API_PORT,
      SequelizeAuto,
-     RedisClient
+     RedisClient,
+     HOST_ADRESS
 }
 
 

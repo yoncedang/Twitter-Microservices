@@ -31,11 +31,14 @@ const DigitalOcean: any = {
 
 }
 
+const HOST_ADRESS = process.env.HOST_ADRESS;
+
 export {
      API_PORT,
      RedisClient,
      JWT_Client,
-     DigitalOcean
+     DigitalOcean,
+     HOST_ADRESS
 }
 
 

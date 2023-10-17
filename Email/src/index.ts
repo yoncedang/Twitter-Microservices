@@ -4,7 +4,7 @@ import { API_PORT } from './Config/Config';
 // import { SequelizeClient } from './Sequelize/Sequelize'
 import { RedisClass } from './Redis/Redis';
 import { KafkaConsumer } from './Kafka/Consumer';
-
+import { IP_ADDRESS } from './Config/Config';
 class App {
   public app: Application;
   public port: string | number;
@@ -44,7 +44,7 @@ class App {
 
   private listen(): void {
     this.app.listen(this.port, () => {
-      console.log(`Server is running at http://localhost:${this.port}`);
+      console.log(`Server is running at http://${IP_ADDRESS}:${this.port}`);
     });
   }
 }

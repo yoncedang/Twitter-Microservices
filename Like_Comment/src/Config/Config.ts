@@ -17,10 +17,12 @@ const RedisClient: any = {
 
 }
 
+const HOST_ADRESS = process.env.HOST_ADRESS;
 
 export {
      API_PORT,
-     RedisClient
+     RedisClient,
+     HOST_ADRESS
 }
 
 

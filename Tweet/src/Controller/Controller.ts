@@ -513,29 +513,48 @@ class Tweet_Controller {
           })
           if (!checkTweet) return await this.Response(topic, "Tweet not found", 404)
 
+          const checkRetweet = await prisma.retweet.findFirst({
+               where: { tweet_id: checkTweet.tweet_id, auth_id },
+          })
+          if (!checkRetweet) return await this.Response(topic, "You already Un-Retweet this Tweet", 422)
           const checkTweetRetweet = await prisma.tweet.findFirst({
                where: { retweet_id: parseInt(tweet_id), type: "Retweet", auth_id },
           })
           if (!checkTweetRetweet) return await this.Response(topic, "Retweet not found", 404)
-          await prisma.$transaction([
-               prisma.hashtag.deleteMany({
+          const checkHashtag = await prisma.hashtag.findMany({
+               where: { tweet_id: checkTweetRetweet.tweet_id },
+          })
+          if (checkHashtag.length > 0) {
+               await prisma.hashtag.deleteMany({
+                    where: { tweet_id: checkTweetRetweet.tweet_id },
+               })
+          }
+
+          await prisma.retweet.deleteMany({
+               where: { tweet_id: checkTweet.tweet_id, auth_id },
+          })
+
+          const checkCountRetweet = await prisma.countRetweet.findFirst({
+               where: { tweet_id: checkTweetRetweet.tweet_id },
+          })
+          if (checkCountRetweet) {
+               await prisma.countRetweet.deleteMany({
+                    where: { tweet_id: checkTweetRetweet.tweet_id },
+               })
+          }
+          await prisma.countRetweet.updateMany({
+               where: { tweet_id: checkTweet.tweet_id },
+               data: { count: { decrement: 1 } },
+          }),
+
+               await prisma.tweet.delete({
                     where: { tweet_id: checkTweetRetweet.tweet_id },
                }),
-               prisma.tweet.delete({
-                    where: { tweet_id: checkTweetRetweet.tweet_id, type: "Retweet" },
-               }),
-               prisma.retweet.deleteMany({
-                    where: { tweet_id: checkTweet.tweet_id, auth_id },
-               }),
-               prisma.countRetweet.updateMany({
-                    where: { tweet_id: checkTweet.tweet_id },
-                    data: { count: { decrement: 1 } },
-               }),
-          ]);
-          await elastic.esClient.delete({
-               index: "tweet",
-               id: checkTweetRetweet.tweet_id.toString(),
-          })
+
+               await elastic.esClient.delete({
+                    index: "tweet",
+                    id: checkTweetRetweet.tweet_id.toString(),
+               })
 
           await elastic.esClient.update({
                index: "tweet",

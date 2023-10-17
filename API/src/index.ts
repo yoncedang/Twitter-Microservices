@@ -14,6 +14,7 @@ import YAML from "yaml"
 import path from 'path';
 import swaggerUI from "swagger-ui-express"
 import fs from "fs"
+import { HOST_ADRESS } from './Config/Config';
 
 
 class App {
@@ -58,7 +59,6 @@ class App {
     this.app.use("/api/follow", this.follow.router)
     this.app.use("/api/tweet", this.tweet.router)
     this.app.use("/api/interact", this.like_comment.router)
-
     this.app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(this.swaggerDocument));
   }
   private async connect(): Promise<void> {
@@ -112,7 +112,7 @@ class App {
 
   private listen(): void {
     this.app.listen(this.port, () => {
-      console.log(`Server is running at http://localhost:${this.port}`);
+      console.log(`Server is running at http://${HOST_ADRESS}:${this.port}`);
     });
   }
 }

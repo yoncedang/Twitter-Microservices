@@ -2,7 +2,7 @@
 
 
 import nodemailer from 'nodemailer';
-
+import { IP_ADDRESS } from '../Config/Config';
 
 class classNodemailer {
 
@@ -72,7 +72,7 @@ class classNodemailer {
                          </div>
                          <div class="content">
                          <p>Vui lòng click vào liên kết dưới đây để xác nhận đăng ký tài khoản:</p>
-                         <a class="button" href="http://localhost:8888/api/auth/verify-email?verification=${verificationToken}">Xác nhận đăng ký</a>
+                         <a class="button" href="http://${IP_ADDRESS}:8888/api/auth/verify-email?verification=${verificationToken}">Xác nhận đăng ký</a>
                          <h1>Verification Code is: ${code}</h1>
                          <h3>Liên kết sẽ hết hạn trong 1 giờ</h3>
                          </div>
@@ -147,7 +147,7 @@ class classNodemailer {
                       </div>
                       <div class="content">
                         <p>Vui lòng click vào liên kết dưới đây để xác nhận đăng ký tài khoản:</p>
-                        <a class="button" href="http://localhost:8888/api/auth/verify-email?verification=${verificationToken}">Xác nhận đăng ký</a>
+                        <a class="button" href="http://${IP_ADDRESS}:8888/api/auth/verify-email?verification=${verificationToken}">Xác nhận đăng ký</a>
                         <h1>Verification Code is: ${code}</h1>
                         <h3>Liên kết sẽ hết hạn trong 1 giờ</h3>
                       </div>
@@ -226,7 +226,7 @@ class classNodemailer {
                       </div>
                       <div class="content">
                         <p>Vui lòng click vào liên kết dưới đây để ĐỔI PASSWORD:</p>
-                        <a class="button" href="http://localhost:8888/api/auth/reset-password?reset=${verificationToken}">Xác nhận đăng ký</a>
+                        <a class="button" href="http://${IP_ADDRESS}:8888/api/auth/reset-password?reset=${verificationToken}">Xác nhận đăng ký</a>
                         <h2>Liên kết sẽ hết hạn trong 1 giờ</h2>
                       </div>
                     </div>
@@ -304,7 +304,7 @@ class classNodemailer {
                   </div>
                   <div class="content">
                     <p>Vui lòng click vào liên kết dưới đây để xác nhận thay đổi Email</p>
-                    <a class="button" href="http://localhost:8888/api/auth/confirm-change-email?confirm=${verificationToken}">Xác nhận thay đổi Email</a>
+                    <a class="button" href="http://${IP_ADDRESS}:8888/api/auth/confirm-change-email?confirm=${verificationToken}">Xác nhận thay đổi Email</a>
                     <h2>Liên kết sẽ hết hạn trong 1 giờ</h2>
                   </div>
                 </div>

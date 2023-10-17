@@ -7,6 +7,7 @@ import cookieParser from "cookie-parser"
 import { RedisClass } from './Redis/Redis';
 import { KafkaConsumer } from './Kafka/Consumer';
 import { ElasticsearchService } from './ElasticSearch/Elasticsearch';
+import { HOST_ADRESS } from './Config/Config';
 class App {
   private redis: RedisClass;
   public app: Application;
@@ -71,7 +72,7 @@ class App {
 
   private listen(): void {
     this.app.listen(this.port, () => {
-      console.log(`Server is running at http://localhost:${this.port}`);
+      console.log(`Server is running at http://${HOST_ADRESS}:${this.port}`);
     });
   }
 }
