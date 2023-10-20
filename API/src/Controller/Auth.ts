@@ -289,7 +289,9 @@ class Auth {
                if (tweetResponse.body.hits.total.value === 0) {
                     results.push({ tweet: "No tweet data found for this User" });
                } else if (tweetResponse.body.hits.hits.length > 0) {
-                    results.push(tweetResponse.body.hits.hits[0]._source.data);
+                    for (const tweetHits of tweetResponse.body.hits.hits) {
+                         results.push(tweetHits._source.data);
+                    }
                } else {
                     results.push("No tweet data found for this User");
                }
@@ -308,7 +310,9 @@ class Auth {
                if (tweetResponse.body.hits.total.value === 0) {
                     return await response.General_Response(res, 404, "Not match any result")
                } else if (tweetResponse.body.hits.hits.length > 0) {
-                    results.push(tweetResponse.body.hits.hits[0]._source.data);
+                    for (const tweetHits of tweetResponse.body.hits.hits) {
+                         results.push(tweetHits._source.data);
+                    }
                } else {
                     return await response.General_Response(res, 404, "Not match any result")
                }
